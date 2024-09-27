@@ -5,4 +5,5 @@ sealed class Screenss(var value : String) {
     data object TimerScreen : Screenss("Timer")
     object SleepScreen : Screenss("Sleep")
     object StopWatchScreen : Screenss("StopWatch")
+    object AlarmRingingScreen : Screenss("AlarmScreen")
 }

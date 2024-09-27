@@ -1,8 +1,8 @@
 package com.example.alarm
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -30,10 +30,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.preferencesDataStore
+import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.alarm.MyApplication.Companion.alarmdatastoress
+import com.example.alarm.MyApplication.Companion.datastoresss
+import com.example.alarm.Screens.AlarmRingingScreen
 import com.example.alarm.Screens.AlarmScreen
 import com.example.alarm.Screens.ClockScreens
 import com.example.alarm.Screens.SleepScreens
@@ -44,18 +47,18 @@ import com.example.alarm.ui.theme.AlarmTheme
 import com.example.alarm.ui.theme.greencolor
 
 class MainActivity : ComponentActivity() {
-    val Context.datastoresss by preferencesDataStore("DataStore")
-    val Context.alarmdatastoress by preferencesDataStore("AlarmData")
+
 
     val viewModel by viewModels<AlarmViewModel> {
-        DataFactory(datastoresss, alarmdatastoress, applicationContext)
+        val app = application as MyApplication
+        DataFactory(app.datastoresss, app.alarmdatastoress, applicationContext)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 200)
 
-        // Create notification channel for Android O and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "ALARM_CHANNEL",
@@ -72,6 +75,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
+            val screen = intent?.getStringExtra("screen")
 
             AlarmTheme {
                 Scaffold(
@@ -84,6 +88,9 @@ class MainActivity : ComponentActivity() {
                         startDestination = Screenss.ClockScreen.value,
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        composable(Screenss.AlarmRingingScreen.value) {
+                            AlarmRingingScreen(navController ,applicationContext)
+                        }
                         composable(Screenss.ClockScreen.value) {
                             ClockScreens()
                         }
@@ -95,6 +102,13 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(Screenss.TimerScreen.value) {
                             AlarmScreen(viewModel, navController)
+                        }
+                    }
+
+
+                    if (screen == "AlarmScreen") {
+                        navController.navigate(Screenss.AlarmRingingScreen.value) {
+                            popUpTo(Screenss.ClockScreen.value) { inclusive = true }
                         }
                     }
                 }
@@ -148,7 +162,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 IconButton(onClick = {
-                    navController.navigate(Screenss.SleepScreen.value)
+                    navController.navigate(Screenss.AlarmRingingScreen.value)
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.alarm_sleep),

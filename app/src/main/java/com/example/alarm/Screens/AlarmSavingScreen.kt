@@ -70,8 +70,8 @@ fun TimePicker(
             viewModel.saveAllarmdata(viewModel.counter.toString(), timeValue)
 
             val finalHour = when {
-                selectedAmPm.value == "AM" && hour == 12 -> 0 // 12 AM should be 00:00
-                selectedAmPm.value == "PM" && hour != 12 -> hour + 12 // Convert PM hours to 24-hour format
+                selectedAmPm.value == "AM" && hour == 12 -> 0
+                selectedAmPm.value == "PM" && hour != 12 -> hour + 12
                 else -> hour
             }
 

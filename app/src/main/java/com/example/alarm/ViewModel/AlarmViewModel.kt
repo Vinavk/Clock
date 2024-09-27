@@ -79,6 +79,7 @@ class AlarmViewModel(
     }
 
     fun scheduleAlarm(hour: Int, minute: Int) {
+
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         val calendar = Calendar.getInstance().apply {
@@ -86,7 +87,6 @@ class AlarmViewModel(
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
         }
-
         Log.d("AlarmViewModel", "Scheduling alarm at ${calendar.time}")
 
         val intent = Intent(context, AlarmReceiver::class.java)
@@ -102,5 +102,22 @@ class AlarmViewModel(
         )
 
 
+    }
+
+    fun stopAlarm() {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // Use the same Intent and PendingIntent as in scheduleAlarm
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            putExtra("stop", "stop") // Ensure the intent has the "stop" extra
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+
+        Log.d("AlarmViewModel", "Alarm canceled")
+        alarmManager.cancel(pendingIntent)
     }
 }
